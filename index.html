@@ -221,21 +221,13 @@
     /* ── success screen ── */
     .carnation-stage {
       position: relative;
-      width: 260px; height: 220px;
+      width: 160px; height: 160px;
       margin: 0 auto 20px;
+      cursor: pointer;
     }
-    .carnation-stage .flower { position: absolute; }
-    .carnation-stage .f1 { width: 150px; height: 150px; left: 55px; top: 35px; z-index: 2; }
-    .carnation-stage .f2 { width: 100px; height: 100px; left: 0;    top: 60px; z-index: 1; }
-    .carnation-stage .f3 { width: 100px; height: 100px; right: 0;   top: 60px; z-index: 1; }
+    .carnation-stage .flower { position: absolute; inset: 0; }
     .carnation-stage .flower svg { width: 100%; height: 100%; overflow: visible; }
-    .carnation-stage .f2 { animation: side-fade 0.7s 2.5s forwards; }
-    .carnation-stage .f3 { animation: side-fade 0.7s 2.7s forwards; }
 
-    @keyframes side-fade {
-      from { opacity: 1; transform: scale(1); }
-      to   { opacity: 0; transform: scale(0.85); }
-    }
     @keyframes petal-bloom {
       0%   { transform: scale(0);    opacity: 0; }
       42%  { transform: scale(1.38); opacity: 1; }
@@ -387,7 +379,7 @@
     ejsPublicKey:   'P03XASp1sDW0TOaUJ',
     serviceId:      'service_42hv8rl',
     templateId:     'template_149zali',
-    herEmail:       'shiyaohung@gmail.com',  // 測試用，改回 peihuachen5@gmail.com
+    herEmail:       'peihuachen5@gmail.com',
     herName:        '姵樺',
     hisEmail:       'shiyaohung@gmail.com',
     hisName:        '士堯',
@@ -467,6 +459,9 @@
       document.getElementById('confirmedDate').textContent = dateChinese;
       goTo('s-success');
       buildCarnations();
+      const stage = document.getElementById('carnation-stage');
+      stage.addEventListener('click', buildCarnations);
+      stage.addEventListener('mouseenter', buildCarnations);
     } catch (e) {
       console.error(e);
       showError('發生錯誤，請稍後再試。');
@@ -482,11 +477,6 @@
   }
 
   // ── Carnation animation ────────────────────────────────
-  const C_FLOWERS = [
-    ['f1', 0.00, '#F08098', '#E06080', '#C84870'],
-    ['f2', 0.45, '#F090A8', '#E07090', '#CC5878'],
-    ['f3', 0.60, '#EE7090', '#D85878', '#BE4060'],
-  ];
   const C_LAYERS = [
     { count: 10, cy: -22, rx: 14, ry: 19, offset: 0,  delay: 0.00 },
     { count: 10, cy: -16, rx: 12, ry: 15, offset: 18, delay: 0.38 },
@@ -523,12 +513,10 @@
     const stage = document.getElementById('carnation-stage');
     if (!stage) return;
     stage.innerHTML = '';
-    C_FLOWERS.forEach(([cls, delay, oc, mc, ic]) => {
-      const wrap = document.createElement('div');
-      wrap.className = `flower ${cls}`;
-      wrap.appendChild(makeCarnationFlower(delay, oc, mc, ic));
-      stage.appendChild(wrap);
-    });
+    const wrap = document.createElement('div');
+    wrap.className = 'flower';
+    wrap.appendChild(makeCarnationFlower(0, '#F08098', '#E06080', '#C84870'));
+    stage.appendChild(wrap);
   }
   function buildGCalLink(dateStr, dateChinese) {
     const [y, m, d] = dateStr.split('-');
