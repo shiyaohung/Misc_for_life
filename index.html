@@ -67,26 +67,17 @@
     }
 
     /* corner ornaments */
-    .card::before, .card::after {
-      content: '';
+    .card { position: relative; }
+    .corner {
       position: absolute;
       width: 28px; height: 28px;
       border-color: var(--gold);
       border-style: solid;
     }
-    .card::before { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
-    .card::after  { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
-
-    .card-inner::before, .card-inner::after {
-      content: '';
-      position: absolute;
-      width: 28px; height: 28px;
-      border-color: var(--gold);
-      border-style: solid;
-    }
-    .card-inner { position: relative; }
-    .card-inner::before { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
-    .card-inner::after  { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+    .corner.tl { top: 10px; left: 10px;    border-width: 1px 0 0 1px; }
+    .corner.tr { top: 10px; right: 10px;   border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 10px; left: 10px;  border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
 
     /* ── typography ── */
     .label {
@@ -301,7 +292,9 @@
 
   <!-- Screen 1: Voucher Card -->
   <div class="screen active" id="s-voucher">
-    <div class="card card-inner">
+    <div class="card">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
       <p class="label">Mother's Day · 2026</p>
 
       <div class="voucher-title">一日育兒券</div>
@@ -316,11 +309,11 @@
       <div class="terms">
         <div class="term-row">
           <span class="term-key">持券人</span>
-          <span>陳姵樺女士</span>
+          <span>陳姵樺<span style="font-size:0.8em;opacity:0.7">女士</span></span>
         </div>
         <div class="term-row">
           <span class="term-key">服務內容</span>
-          <span>當日育兒全程由士堯一手包辦，包含但不限於哄睡、餵食、把屎把尿、無限陪玩、半夜起床</span>
+          <span>極致托嬰體驗，媽媽可享受完全放鬆的一整天</span>
         </div>
         <div class="term-row">
           <span class="term-key">有效期間</span>
@@ -328,7 +321,7 @@
         </div>
         <div class="term-row">
           <span class="term-key">使用規則</span>
-          <span>一次性使用，持券人得自行安排當日行程，不得干涉服務方之執行方式</span>
+          <span>一次性使用，持券人可自行安排當日行程，請盡情享受屬於自己的時光。此服務日後有機會再度開放。</span>
         </div>
       </div>
 
@@ -339,7 +332,9 @@
 
   <!-- Screen 2: Date Selection -->
   <div class="screen date-screen" id="s-date">
-    <div class="card card-inner">
+    <div class="card">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
       <p class="label">兌換日期選擇</p>
       <div class="screen-title">請選擇您的日期</div>
       <p class="screen-desc">選定後將同步通知雙方，並提供行事曆連結。</p>
@@ -355,7 +350,9 @@
 
   <!-- Screen 3: Success -->
   <div class="screen" id="s-success">
-    <div class="card card-inner">
+    <div class="card">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
       <div class="success-icon">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
@@ -365,7 +362,8 @@
       <p class="success-note">
         確認信已寄至雙方信箱<br>
         點擊信件內的連結即可加入行事曆<br><br>
-        母親節快樂 ❤
+        母親節快樂 ❤<br><br>
+        <span style="font-size:11px;opacity:0.5;letter-spacing:0.05em">此服務日後有機會再度開放</span>
       </p>
     </div>
   </div>
