@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>母親節禮物</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F0EAD8;
+      --card:      #FAF6EC;
+      --ink:       #1C150A;
+      --gold:      #A07830;
+      --gold-lt:   #D4B878;
+      --gold-faint:#EDE0C0;
+      --muted:     #7A6A50;
+      --radius:    2px;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      font-family: 'Jost', sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrapper {
+      position: relative; z-index: 1;
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 20px;
+    }
+
+    /* ── screens ── */
+    .screen {
+      display: none;
+      width: 100%; max-width: 420px;
+    }
+    .screen.active { display: block; }
+
+    /* ── voucher card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--gold-lt);
+      padding: 40px 32px 36px;
+      position: relative;
+      box-shadow: 0 2px 40px rgba(80,50,10,0.10), 0 1px 3px rgba(80,50,10,0.08);
+      animation: reveal 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes reveal {
+      from { opacity:0; transform: translateY(24px) scale(0.97); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* corner ornaments */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .card::before { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+    .card::after  { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+    .card-inner::before, .card-inner::after {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .card-inner { position: relative; }
+    .card-inner::before { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+    .card-inner::after  { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+
+    /* ── typography ── */
+    .label {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .voucher-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 52px;
+      line-height: 1;
+      text-align: center;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .voucher-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 16px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 0 0 24px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--gold-faint); }
+    .divider-dot  { width: 5px; height: 5px; background: var(--gold-lt); border-radius: 50%; flex-shrink:0; }
+
+    .terms {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 2;
+      margin-bottom: 28px;
+    }
+    .terms strong {
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .term-row {
+      display: flex;
+      gap: 8px;
+    }
+    .term-key {
+      flex-shrink: 0;
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding-top: 1px;
+    }
+
+    .btn {
+      display: block; width: 100%;
+      padding: 14px;
+      background: var(--ink);
+      color: var(--gold-lt);
+      font-family: 'Jost', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn:hover { background: var(--gold); color: var(--card); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .serial {
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--gold-lt);
+      margin-top: 20px;
+    }
+
+    /* ── date screen ── */
+    .date-screen .card { animation-delay: 0.05s; }
+
+    .screen-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 6px;
+    }
+    .screen-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .field-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: white;
+      border: 1px solid var(--gold-lt);
+      border-radius: var(--radius);
+      font-family: 'Jost', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--ink);
+      margin-bottom: 24px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="date"]:focus {
+      border-color: var(--gold);
+    }
+
+    .note {
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── success screen ── */
+    .success-icon {
+      width: 56px; height: 56px;
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 300;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .success-date {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .success-note {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* ── spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 1.5px solid var(--gold-lt);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── error state ── */
+    .error-msg {
+      font-size: 12px;
+      color: #c0392b;
+      text-align: center;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── gate (wrong key) ── */
+    #gate { display: none; }
+  </style>
+</head>
+<body>
+
+<div id="gate"></div>
+
+<div class="wrapper" id="app" style="display:none">
+
+  <!-- Screen 1: Voucher Card -->
+  <div class="screen active" id="s-voucher">
+    <div class="card card-inner">
+      <p class="label">Mother's Day · 2026</p>
+
+      <div class="voucher-title">一日育兒券</div>
+      <p class="voucher-sub">全包服務兌換憑證</p>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-dot"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="terms">
+        <div class="term-row">
+          <span class="term-key">持券人</span>
+          <span>陳佩樺女士</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">服務內容</span>
+          <span>當日育兒全程由士堯一手包辦，包含但不限於哄睡、餵食、把屎把尿、無限陪玩、半夜起床</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">有效期間</span>
+          <span>2026 年內，擇日兌換</span>
+        </div>
+        <div class="term-row">
+          <span class="term-key">使用規則</span>
+          <span>一次性使用，持券人得自行安排當日行程，不得干涉服務方之執行方式</span>
+        </div>
+      </div>
+
+      <button class="btn" onclick="goTo('s-date')">立即兌換</button>
+      <p class="serial">VOL-2026-MD-001</p>
+    </div>
+  </div>
+
+  <!-- Screen 2: Date Selection -->
+  <div class="screen date-screen" id="s-date">
+    <div class="card card-inner">
+      <p class="label">兌換日期選擇</p>
+      <div class="screen-title">請選擇您的日期</div>
+      <p class="screen-desc">選定後將同步通知雙方，並提供行事曆連結。</p>
+
+      <p class="field-label">兌換日期</p>
+      <input type="date" id="dateInput">
+
+      <button class="btn" id="submitBtn" onclick="handleSubmit()">確認兌換</button>
+      <p class="error-msg" id="errMsg">發生錯誤，請稍後再試。</p>
+      <p class="note">確認後將寄送通知至雙方信箱</p>
+    </div>
+  </div>
+
+  <!-- Screen 3: Success -->
+  <div class="screen" id="s-success">
+    <div class="card card-inner">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">兌換成功</div>
+      <div class="success-date" id="confirmedDate"></div>
+      <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+      <p class="success-note">
+        確認信已寄至雙方信箱<br>
+        點擊信件內的連結即可加入行事曆<br><br>
+        母親節快樂 ❤
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Config ─────────────────────────────────────────────
+  const CFG = {
+    key:            'mothersday2026',   // ← 可自行修改
+    ejsPublicKey:   'P03XASp1sDW0TOaUJ',
+    serviceId:      'service_42hv8rl',
+    templateId:     'template_149zali',
+    herEmail:       'peihuachen5@gmail.com',
+    herName:        '培樺',
+    hisEmail:       'shiyaohung@gmail.com',
+    hisName:        '士堯',
+  };
+
+  // ── Key gate ───────────────────────────────────────────
+  const params = new URLSearchParams(location.search);
+  if (params.get('key') !== CFG.key) {
+    document.getElementById('gate').style.display = 'block';
+  } else {
+    document.getElementById('app').style.display = 'flex';
+    emailjs.init(CFG.ejsPublicKey);
+    initDateInput();
+  }
+
+  // ── Date input init ────────────────────────────────────
+  function initDateInput() {
+    const el = document.getElementById('dateInput');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    el.min = fmt(tomorrow);
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    el.max = fmt(maxDate);
+  }
+
+  function fmt(d) {
+    return d.toISOString().split('T')[0];
+  }
+
+  function formatDateChinese(str) {
+    const [y, m, d] = str.split('-');
+    return `${y} 年 ${parseInt(m)} 月 ${parseInt(d)} 日`;
+  }
+
+  // ── Screen nav ─────────────────────────────────────────
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ── Submit ─────────────────────────────────────────────
+  async function handleSubmit() {
+    const dateVal = document.getElementById('dateInput').value;
+    if (!dateVal) {
+      showError('請選擇一個日期');
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('errMsg');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>寄送中…';
+    err.style.display = 'none';
+
+    const dateChinese = formatDateChinese(dateVal);
+    const gcalLink = buildGCalLink(dateVal, dateChinese);
+
+    try {
+      // Send to her
+      await emailjs.send(CFG.serviceId, CFG.templateId, {
+        to_email:      CFG.herEmail,
+        to_name:       CFG.herName,
+        selected_date: dateChinese,
+        gcal_link:     gcalLink,
+      });
+
+      // Send to him
+      await emailjs.send(CFG.serviceId, CFG.templateId, {
+        to_email:      CFG.hisEmail,
+        to_name:       CFG.hisName,
+        selected_date: dateChinese,
+        gcal_link:     gcalLink,
+      });
+
+      document.getElementById('confirmedDate').textContent = dateChinese;
+      goTo('s-success');
+    } catch (e) {
+      console.error(e);
+      showError('發生錯誤，請稍後再試。');
+      btn.disabled = false;
+      btn.textContent = '確認兌換';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // ── Google Calendar link ───────────────────────────────
+  function buildGCalLink(dateStr, dateChinese) {
+    const [y, m, d] = dateStr.split('-');
+    const start = `${y}${m}${d}`;
+    // all-day event: end date = next day
+    const endDate = new Date(dateStr);
+    endDate.setDate(endDate.getDate() + 1);
+    const end = fmt(endDate).replace(/-/g, '');
+    const title = encodeURIComponent('🎁 育兒券兌換日');
+    const details = encodeURIComponent(`${CFG.herName}的一整天，所有育兒由${CFG.hisName}全包。`);
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}`;
+  }
+</script>
+</body>
+</html>
+```
