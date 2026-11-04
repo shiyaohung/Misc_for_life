@@ -1,0 +1,21 @@
+name = "mushroom-notifier"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["* * * * *"] # 每分鐘檢查一次
+
+[[kv_namespaces]]
+binding = "STATE"
+id = "REPLACE_WITH_KV_ID" # wrangler kv namespace create STATE 後填入
+
+[vars]
+TELEGRAM_CHAT_ID = "REPLACE_WITH_CHAT_ID"
+RADIUS_M = "1000"        # 預設提醒半徑（公尺），可用 /radius 改
+LEAD_MIN = "3"           # 出現前幾分鐘提醒
+LOC_MAX_AGE_MIN = "30"   # 位置超過幾分鐘沒更新就不提醒
+# SOURCE_URL = ""        # 資料來源，見 README
+
+# 機密值用指令設定，不要寫在這裡：
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+#   wrangler secret put WEBHOOK_SECRET
