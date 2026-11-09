@@ -1,41 +1,48 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { nearestStops, normStop, normTruck, progress, taipeiDate } from '../src/lib.js';
+import { nearestStops, normTruck, parseTruckTime, stopsLeft, taipeiDate } from '../src/lib.js';
+import STOPS from '../src/stops-data.js';
 
 // 一條往北走的假路線，每站相隔約 330 公尺
 const stops = [1, 2, 3, 4, 5].map((rank) => ({ rank, name: `站${rank}`, lat: 25.17 + rank * 0.003, lng: 121.44 }));
 const at = (rank, dLat = 0) => ({ lat: 25.17 + rank * 0.003 + dLat, lng: 121.44 });
 
-test('progress：車在前一站 → prev', () => {
-  assert.equal(progress(at(3), stops, 4), 'prev');
-  assert.equal(progress(at(3, 0.0005), stops, 4), 'prev'); // 離前一站約 55m
+test('stopsLeft：前一站 → 1、你家這站 → 0', () => {
+  assert.equal(stopsLeft(at(3), stops, 4), 1);
+  assert.equal(stopsLeft(at(3, 0.0005), stops, 4), 1); // 離前一站約 55m
+  assert.equal(stopsLeft(at(4), stops, 4), 0);
 });
 
-test('progress：車在你家這站 → mine（保險）', () => {
-  assert.equal(progress(at(4), stops, 4), 'mine');
+test('stopsLeft：ahead=3 時前三站都算', () => {
+  assert.equal(stopsLeft(at(1), stops, 4, { ahead: 3 }), 3);
+  assert.equal(stopsLeft(at(1), stops, 4, { ahead: 2 }), null);
 });
 
-test('progress：還很遠或已經過了 → null', () => {
-  assert.equal(progress(at(1), stops, 4), null);
-  assert.equal(progress(at(5), stops, 4), null);
-  assert.equal(progress(at(3, 0.0015), stops, 4), null); // 兩站中間、離每站都 >150m
+test('stopsLeft：還很遠、已經過了、在兩站中間 → null', () => {
+  assert.equal(stopsLeft(at(1), stops, 4), null);
+  assert.equal(stopsLeft(at(5), stops, 4), null);
+  assert.equal(stopsLeft(at(3, 0.0015), stops, 4), null);
 });
 
-test('progress：第一站沒有前一站', () => {
-  assert.equal(progress(at(1), stops, 1), 'mine');
+test('stopsLeft：清運序不連續也用順序算', () => {
+  const gap = stops.map((s) => ({ ...s, rank: s.rank * 10 }));
+  assert.equal(stopsLeft(at(3), gap, 40), 1);
 });
 
 test('nearestStops', () => {
-  const n = nearestStops(stops, at(2, 0.0004), 2);
-  assert.deepEqual(n.map((s) => s.rank), [2, 3]);
+  assert.deepEqual(nearestStops(stops, at(2, 0.0004), 2).map((s) => s.rank), [2, 3]);
 });
 
-test('欄位轉換', () => {
-  const s = normStop({ city: '淡水區', lineid: 'A1', linename: '淡水1', rank: '7', name: '中正路口', time: '19:30', latitude: '25.17', longitude: '121.44' });
-  assert.equal(s.rank, 7);
-  assert.equal(s.lat, 25.17);
-  const t = normTruck({ lineid: 'A1', car: 'KED-1234', time: '2026/11/09 19:28', latitude: '25.17', longitude: '121.44' });
-  assert.equal(t.lng, 121.44);
+test('normTruck / parseTruckTime（新北實際格式）', () => {
+  const t = normTruck({ lineid: '234081', car: '148-BY', time: '2026/11/09 20:14:15', location: '新北市永和區國中路109巷1弄1號', longitude: '121.524218333333', latitude: '25.005755' });
+  assert.equal(t.lat, 25.005755);
+  assert.equal(parseTruckTime(t.time), Date.parse('2026-11-09T12:14:15Z'));
+  assert.ok(Number.isNaN(parseTruckTime('')));
+});
+
+test('打包的淡水區清運點資料', () => {
+  assert.ok(STOPS.length > 100);
+  for (const s of STOPS) assert.ok(Number.isFinite(s[5]) && Number.isFinite(s[6]) && Number.isInteger(s[2]));
 });
 
 test('taipeiDate 跨日', () => {
