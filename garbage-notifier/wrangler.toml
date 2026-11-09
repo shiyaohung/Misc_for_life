@@ -1,0 +1,21 @@
+name = "garbage-notifier"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["* * * * *"] # 每分鐘檢查（新北即時位置約 2 分鐘更新一次）
+
+[[kv_namespaces]]
+binding = "STATE"
+id = "REPLACE_WITH_KV_ID"
+
+[vars]
+TELEGRAM_CHAT_ID = "REPLACE_WITH_CHAT_ID"
+DISTRICT = "淡水區"
+NEAR_M = "150" # 車子離清運點多近算「到站」（公尺）
+# 新北市資料開放平台的資料集 ID（尚未實測，部署前請到 data.ntpc.gov.tw 確認）
+ROUTE_DATASET = "edc3ad26-8ae7-4916-a00b-bc6048d19bf8"    # 新北市垃圾車路線
+REALTIME_DATASET = "28ab4122-60e1-4065-98e5-abccb69aaca6" # 新北市垃圾清運車輛所在位置
+
+# wrangler secret put TELEGRAM_BOT_TOKEN
+# wrangler secret put WEBHOOK_SECRET
